@@ -142,7 +142,7 @@ export default function Dashboard() {
           <span className="metrica-valor">US$ {fmt(totalUSD, 2)}</span>
         </div>
         <div className="metrica-card">
-          <span className="metrica-label">Balance neto</span>
+          <span className="metrica-label">Ingresos − Gastos</span>
           <span className="metrica-valor" style={{ color: netMovimientos >= 0 ? 'var(--green-text)' : 'var(--red-text)' }}>
             {netMovimientos >= 0 ? '+' : ''}RD$ {fmt(netMovimientos)}
           </span>
