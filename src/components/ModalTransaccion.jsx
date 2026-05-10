@@ -7,9 +7,10 @@ export default function ModalTransaccion({ tipo, onClose }) {
   const fetchCuentas       = useBancoStore(s => s.fetchCuentas)
   const agregarTransaccion = useBancoStore(s => s.agregarTransaccion)
 
-  const [cuentaId, setCuentaId] = useState('')
-  const [monto, setMonto]       = useState('')
-  const [desc, setDesc]         = useState('')
+  const [cuentaId, setCuentaId]   = useState('')
+  const [montoRaw, setMontoRaw]   = useState('')   // número limpio para guardar
+  const [montoDisplay, setMontoDisplay] = useState('') // con comas para mostrar
+  const [desc, setDesc]           = useState('')
   const [fecha, setFecha]       = useState(new Date().toISOString().split('T')[0])
   const [enviando, setEnviando] = useState(false)
   const [ok, setOk]             = useState(false)
@@ -29,11 +30,11 @@ export default function ModalTransaccion({ tipo, onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!cuentaId || !monto || parseFloat(monto) <= 0) return
+    if (!cuentaId || !montoRaw || parseFloat(montoRaw) <= 0) return
     setEnviando(true)
     await agregarTransaccion({
-      tipo: tipo === 'egreso' ? 'gasto' : 'ingreso',  // la DB usa 'gasto'/'ingreso'
-      monto: parseFloat(monto),
+      tipo: tipo === 'egreso' ? 'gasto' : 'ingreso',
+      monto: parseFloat(montoRaw),
       descripcion: desc,
       fecha,
       cuenta_id: cuentaId,
@@ -42,7 +43,21 @@ export default function ModalTransaccion({ tipo, onClose }) {
     setTimeout(() => { onClose() }, 900)
   }
 
-  const cuenta = cuentas.find(c => c.id === cuentaId)
+  const handleMonto = (e) => {
+    // Solo dígitos y un punto decimal
+    const raw = e.target.value.replace(/[^0-9.]/g, '')
+    // Evitar múltiples puntos
+    const parts = raw.split('.')
+    const clean = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : raw
+    setMontoRaw(clean)
+    // Formatear parte entera con comas
+    if (clean === '' || clean === '.') { setMontoDisplay(clean); return }
+    const [intPart, decPart] = clean.split('.')
+    const formatted = Number(intPart || 0).toLocaleString('es-DO')
+    setMontoDisplay(decPart !== undefined ? formatted + '.' + decPart : formatted)
+  }
+
+
 
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -99,12 +114,11 @@ export default function ModalTransaccion({ tipo, onClose }) {
                   {esIngreso ? '+' : '-'}
                 </span>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   placeholder="0.00"
-                  value={monto}
-                  onChange={e => setMonto(e.target.value)}
-                  min="0.01"
-                  step="0.01"
+                  value={montoDisplay}
+                  onChange={handleMonto}
                   required
                   className="monto-input"
                   autoFocus
@@ -136,7 +150,7 @@ export default function ModalTransaccion({ tipo, onClose }) {
             <button
               type="submit"
               className={`btn-modal ${esIngreso ? 'verde' : 'rojo'}`}
-              disabled={enviando || !cuentaId || !monto}
+              disabled={enviando || !cuentaId || !montoRaw}
             >
               {enviando ? 'Guardando...' : `Registrar ${esIngreso ? 'ingreso' : 'egreso'}`}
             </button>
