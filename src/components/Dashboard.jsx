@@ -101,6 +101,8 @@ export default function Dashboard() {
   const getDashboardData        = useBancoStore(s => s.getDashboardData)
   const cargandoDashboard       = useBancoStore(s => s.cargandoDashboard)
   const cuentas                 = useBancoStore(s => s.cuentas)
+  // Suscripción necesaria: re-renderiza cuando cambian las transacciones
+  useBancoStore(s => s.todasTransacciones)
 
   useEffect(() => {
     fetchCuentas()

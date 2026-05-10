@@ -44,12 +44,18 @@ export const useBancoStore = create((set, get) => ({
       .select()
       .single()
     if (!error) {
-      set((state) => ({
-        transacciones: state.transacciones[0]?.cuenta_id === nueva.cuenta_id
-          ? [data, ...state.transacciones]
-          : state.transacciones,
-        todasTransacciones: [data, ...state.todasTransacciones],
-      }))
+      set((state) => {
+        // Actualiza transacciones (vista por cuenta) solo si la cuenta activa coincide
+        const txActuales = state.transacciones
+        const mismaCuenta = txActuales.some(t => t.cuenta_id === nueva.cuenta_id)
+          || txActuales.length === 0
+        return {
+          transacciones: mismaCuenta
+            ? [data, ...txActuales.filter(t => t.cuenta_id === nueva.cuenta_id)]
+            : txActuales,
+          todasTransacciones: [data, ...state.todasTransacciones],
+        }
+      })
     }
   },
 

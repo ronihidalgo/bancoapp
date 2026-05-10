@@ -2,19 +2,15 @@ import { useBancoStore } from '../store/useBancoStore'
 import './TarjetaSaldo.css'
 
 export default function TarjetaSaldo({ cuenta }) {
-  const calcularSaldo  = useBancoStore(s => s.calcularSaldo)
-  const transacciones  = useBancoStore(s => s.transacciones)
+  const calcularSaldoCuenta = useBancoStore(s => s.calcularSaldoCuenta)
+  // Suscripción necesaria: re-renderiza al cambiar transacciones
+  const todasTransacciones  = useBancoStore(s => s.todasTransacciones)
 
-  const saldo    = calcularSaldo(cuenta)
-  const positivo = saldo >= 0
-
-  const ingresos = transacciones
-    .filter(t => t.tipo === 'ingreso')
-    .reduce((acc, t) => acc + Number(t.monto), 0)
-
-  const gastos = transacciones
-    .filter(t => t.tipo === 'gasto')
-    .reduce((acc, t) => acc + Number(t.monto), 0)
+  const txsCuenta = todasTransacciones.filter(t => t.cuenta_id === cuenta.id)
+  const ingresos  = txsCuenta.filter(t => t.tipo === 'ingreso').reduce((a, t) => a + Number(t.monto), 0)
+  const gastos    = txsCuenta.filter(t => t.tipo === 'gasto').reduce((a, t) => a + Number(t.monto), 0)
+  const saldo     = calcularSaldoCuenta(cuenta)
+  const positivo  = saldo >= 0
 
   const fmt = (n) => n.toLocaleString('es-DO', { minimumFractionDigits: 2 })
 
@@ -33,12 +29,8 @@ export default function TarjetaSaldo({ cuenta }) {
         </p>
       </div>
       <div className="saldo-chips">
-        <span className="chip chip-green">
-          ↑ {cuenta.moneda} {fmt(ingresos)} ingresos
-        </span>
-        <span className="chip chip-red">
-          ↓ {cuenta.moneda} {fmt(gastos)} gastos
-        </span>
+        <span className="chip chip-green">↑ {cuenta.moneda} {fmt(ingresos)} ingresos</span>
+        <span className="chip chip-red">↓ {cuenta.moneda} {fmt(gastos)} gastos</span>
       </div>
     </div>
   )

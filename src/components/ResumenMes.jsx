@@ -2,7 +2,8 @@ import { useBancoStore } from '../store/useBancoStore'
 import './ResumenMes.css'
 
 export default function ResumenMes({ cuenta }) {
-  const transacciones = useBancoStore(s => s.transacciones)
+  const todasTransacciones = useBancoStore(s => s.todasTransacciones)
+  const transacciones = todasTransacciones.filter(t => t.cuenta_id === cuenta.id)
 
   const ingresos = transacciones
     .filter(t => t.tipo === 'ingreso')

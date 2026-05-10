@@ -3,12 +3,16 @@ import { useBancoStore } from '../store/useBancoStore'
 import './TablaMovimientos.css'
 
 export default function TablaMovimientos({ cuenta }) {
-  const transacciones      = useBancoStore(s => s.transacciones)
-  const fetchTransacciones = useBancoStore(s => s.fetchTransacciones)
+  const todasTransacciones     = useBancoStore(s => s.todasTransacciones)
+  const fetchTodasTransacciones = useBancoStore(s => s.fetchTodasTransacciones)
 
   useEffect(() => {
-    if (cuenta) fetchTransacciones(cuenta.id)
+    if (todasTransacciones.length === 0) fetchTodasTransacciones()
   }, [cuenta])
+
+  const transacciones = todasTransacciones
+    .filter(t => t.cuenta_id === cuenta.id)
+    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
 
   const fmt = (n) => Number(n).toLocaleString('es-DO', { minimumFractionDigits: 2 })
 
