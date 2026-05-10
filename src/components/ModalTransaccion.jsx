@@ -32,7 +32,7 @@ export default function ModalTransaccion({ tipo, onClose }) {
     if (!cuentaId || !monto || parseFloat(monto) <= 0) return
     setEnviando(true)
     await agregarTransaccion({
-      tipo,
+      tipo: tipo === 'egreso' ? 'gasto' : 'ingreso',  // la DB usa 'gasto'/'ingreso'
       monto: parseFloat(monto),
       descripcion: desc,
       fecha,
