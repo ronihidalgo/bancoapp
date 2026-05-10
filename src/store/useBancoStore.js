@@ -83,6 +83,9 @@ export const useBancoStore = create((set, get) => ({
       if (c.tipo) return c.tipo
       const n = c.nombre.toLowerCase()
       if (n.includes('efectivo') || n.includes('cash')) return 'efectivo'
+      if (n.includes('platino') || n.includes('platinum') || n.includes('black') ||
+          n.includes('visa') || n.includes('master') || n.includes('tarjeta') ||
+          n.includes('credito') || n.includes('crédito')) return 'tarjeta'
       return 'banco'
     }
 

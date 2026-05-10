@@ -6,14 +6,18 @@ import TarjetaSaldo      from './components/TarjetaSaldo'
 import ResumenMes        from './components/ResumenMes'
 import Dashboard         from './components/Dashboard'
 import ModalTransaccion  from './components/ModalTransaccion'
+import Setup             from './pages/Setup'
 import './App.css'
 
 const TABS = ['Dashboard', 'Cuentas']
 
 export default function App() {
-  const [tab, setTab]               = useState('Dashboard')
+  const [tab, setTab]           = useState('Dashboard')
   const [cuentaActiva, setCuentaActiva] = useState(null)
-  const [modal, setModal]           = useState(null) // 'ingreso' | 'egreso' | null
+  const [modal, setModal]       = useState(null)
+
+  // Ruta /setup para insertar cuentas iniciales
+  if (window.location.pathname === '/setup') return <Setup />
 
   return (
     <div className="app-wrapper">
