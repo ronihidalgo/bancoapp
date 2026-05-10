@@ -44,20 +44,17 @@ export default function ModalTransaccion({ tipo, onClose }) {
   }
 
   const handleMonto = (e) => {
-    // Solo dígitos y un punto decimal
     const raw = e.target.value.replace(/[^0-9.]/g, '')
-    // Evitar múltiples puntos
     const parts = raw.split('.')
     const clean = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : raw
     setMontoRaw(clean)
-    // Formatear parte entera con comas
     if (clean === '' || clean === '.') { setMontoDisplay(clean); return }
     const [intPart, decPart] = clean.split('.')
     const formatted = Number(intPart || 0).toLocaleString('es-DO')
     setMontoDisplay(decPart !== undefined ? formatted + '.' + decPart : formatted)
   }
 
-
+  const cuenta = cuentas.find(c => c.id === cuentaId)
 
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
