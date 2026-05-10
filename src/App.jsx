@@ -3,35 +3,52 @@ import ListaCuentas     from './components/ListaCuentas'
 import FormTransaccion  from './components/FormTransaccion'
 import TablaMovimientos from './components/TablaMovimientos'
 import TarjetaSaldo     from './components/TarjetaSaldo'
+import ResumenMes       from './components/ResumenMes'
+import './App.css'
 
 export default function App() {
   const [cuentaActiva, setCuentaActiva] = useState(null)
 
   return (
-    <div style={{ maxWidth:800, margin:'0 auto', padding:24 }}>
-      <h1>BancoApp</h1>
+    <div className="app-wrapper">
 
-      <h2>Mis cuentas</h2>
-      <ListaCuentas onSelect={setCuentaActiva} />
+      {/* Header */}
+      <header className="app-header">
+        <div className="app-logo">banco<span>app</span></div>
+        <div className="app-user">
+          <span className="app-user-name">Mis finanzas</span>
+          <div className="app-avatar">💰</div>
+        </div>
+      </header>
 
+      {/* Cuentas */}
+      <p className="section-label">Mis cuentas</p>
+      <ListaCuentas onSelect={setCuentaActiva} cuentaActiva={cuentaActiva} />
+
+      {/* Detalle de cuenta */}
       {cuentaActiva && (
         <>
-          <h2 style={{ marginTop:32 }}>
-            {cuentaActiva.nombre}
-            <span style={{ fontSize:13, color:'#888', marginLeft:8 }}>
-              {cuentaActiva.banco}
-            </span>
-          </h2>
-
           <TarjetaSaldo cuenta={cuentaActiva} />
 
-          <h3>Registrar movimiento</h3>
-          <FormTransaccion cuenta={cuentaActiva} />
+          <div className="panel-grid">
+            <div className="card">
+              <p className="panel-title">
+                ＋ Registrar movimiento
+              </p>
+              <FormTransaccion cuenta={cuentaActiva} />
+            </div>
+            <div className="card">
+              <p className="panel-title">
+                📊 Resumen del mes
+              </p>
+              <ResumenMes cuenta={cuentaActiva} />
+            </div>
+          </div>
 
-          <h3 style={{ marginTop:24 }}>Movimientos</h3>
           <TablaMovimientos cuenta={cuentaActiva} />
         </>
       )}
+
     </div>
   )
 }

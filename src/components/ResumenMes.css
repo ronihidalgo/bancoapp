@@ -1,0 +1,33 @@
+.resumen { display: flex; flex-direction: column; gap: 8px; }
+
+.resumen-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resumen-label { font-size: 13px; color: var(--text-muted); }
+
+.resumen-valor { font-size: 14px; }
+.resumen-valor.verde { color: var(--green-text); }
+.resumen-valor.rojo  { color: var(--red-text); }
+
+.barra-track {
+  height: 5px;
+  border-radius: 4px;
+  background: var(--border);
+  overflow: hidden;
+}
+.barra-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+  min-width: 4px;
+}
+.barra-fill.verde { background: var(--green-bar); }
+.barra-fill.rojo  { background: var(--red-bar); }
+
+.resumen-divider {
+  border-top: 0.5px solid var(--border);
+  margin: 4px 0;
+}

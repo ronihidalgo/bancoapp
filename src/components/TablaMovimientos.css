@@ -1,0 +1,65 @@
+.movimientos-card { margin-top: 0; }
+
+.mov-lista {
+  display: flex;
+  flex-direction: column;
+}
+
+.mov-fila {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 0.5px solid var(--border);
+}
+.mov-fila:last-child { border-bottom: none; }
+
+.mov-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.mov-dot.verde { background: var(--green-bg); color: var(--green-text); }
+.mov-dot.rojo  { background: var(--red-bg);   color: var(--red-text); }
+
+.mov-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.mov-desc {
+  font-size: 14px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mov-fecha { font-size: 11px; color: var(--text-hint); }
+
+.mov-derecha {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+.mov-monto {
+  font-size: 14px;
+  font-weight: 500;
+}
+.mov-monto.verde { color: var(--green-text); }
+.mov-monto.rojo  { color: var(--red-text); }
+
+.mov-empty {
+  font-size: 14px;
+  color: var(--text-hint);
+  text-align: center;
+  padding: 2rem 0;
+}

@@ -1,0 +1,41 @@
+.form-transaccion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tipo-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.tipo-btn {
+  padding: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tipo-btn:hover { border-color: var(--border-hover); }
+
+.tipo-btn.activo.rojo {
+  background: var(--red-bg);
+  color: var(--red-text);
+  border-color: var(--red-text);
+}
+.tipo-btn.activo.verde {
+  background: var(--green-bg);
+  color: var(--green-text);
+  border-color: var(--green-text);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
