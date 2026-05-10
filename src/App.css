@@ -101,3 +101,42 @@
   color: var(--purple);
   border: 0.5px solid var(--border);
 }
+
+/* Botones de acción rápida */
+.acciones-rapidas {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.btn-accion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  color: #fff;
+  letter-spacing: 0.1px;
+}
+.btn-accion:hover  { opacity: 0.92; }
+.btn-accion:active { transform: scale(0.97); }
+
+.btn-accion.ingreso { background: var(--green-text); }
+.btn-accion.egreso  { background: var(--red-text); }
+
+.btn-accion-icono {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}

@@ -2,19 +2,105 @@ import { useEffect } from 'react'
 import { useBancoStore } from '../store/useBancoStore'
 import './Dashboard.css'
 
-const fmt = (n, decimals = 0) =>
-  Number(n).toLocaleString('es-DO', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  })
+const fmt = (n, dec = 0) =>
+  Number(n).toLocaleString('es-DO', { minimumFractionDigits: dec, maximumFractionDigits: dec })
+
+function SeccionCuentas({ titulo, icono, cuentas, saldosPor, totalLabel, totalColor }) {
+  if (cuentas.length === 0) return null
+
+  const totalRD  = cuentas.filter(c => c.moneda !== 'USD').reduce((a, c) => a + saldosPor[c.id], 0)
+  const totalUSD = cuentas.filter(c => c.moneda === 'USD').reduce((a, c) => a + saldosPor[c.id], 0)
+
+  return (
+    <section className="dash-seccion">
+      <div className="seccion-header">
+        <span className="seccion-titulo">{icono} {titulo}</span>
+        <div style={{ display:'flex', gap:10 }}>
+          {totalRD  !== 0 && <span className="seccion-total" style={{ color: totalColor }}>RD$ {fmt(totalRD)}</span>}
+          {totalUSD !== 0 && <span className="seccion-total" style={{ color: totalColor }}>US$ {fmt(totalUSD,2)}</span>}
+        </div>
+      </div>
+      <div className="cuentas-tabla">
+        {cuentas.map(c => {
+          const saldo = saldosPor[c.id]
+          const pos   = saldo >= 0
+          return (
+            <div key={c.id} className="tabla-fila">
+              <div className="tabla-nombre">
+                <div className="tabla-dot" style={{ background: c.color ? c.color + '22' : '#EEEDFE', color: c.color || '#534AB7' }}>
+                  {icono}
+                </div>
+                <div>
+                  <span className="tabla-cuenta">{c.nombre}</span>
+                  <span className="tabla-banco">{c.banco}</span>
+                </div>
+              </div>
+              <span className={`tabla-saldo ${pos ? 'verde' : 'rojo'}`}>
+                {c.moneda} {fmt(saldo, 2)}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+function SeccionTarjetas({ tarjetas, saldosPor }) {
+  if (tarjetas.length === 0) return null
+
+  const total = tarjetas
+    .filter(c => c.moneda !== 'USD')
+    .reduce((a, c) => a + Math.abs(Math.min(saldosPor[c.id], 0)), 0)
+
+  return (
+    <section className="dash-seccion">
+      <div className="seccion-header">
+        <span className="seccion-titulo">💳 Tarjetas de crédito</span>
+        <span className="seccion-total rojo">RD$ {fmt(total)} adeudado</span>
+      </div>
+      <div className="cuentas-tabla">
+        {tarjetas.map(c => {
+          const saldo  = saldosPor[c.id]
+          const limite = Number(c.limite || 0)
+          const usado  = Math.abs(Math.min(saldo, 0))
+          const pct    = limite > 0 ? Math.min((usado / limite) * 100, 100) : 0
+          const barColor = pct > 80 ? 'var(--red-bar)' : pct > 50 ? '#EF9F27' : 'var(--green-bar)'
+
+          return (
+            <div key={c.id} className="tabla-fila tarjeta-fila">
+              <div className="tabla-nombre">
+                <div className="tabla-dot" style={{ background:'#FCEBEB', color:'#A32D2D' }}>💳</div>
+                <div>
+                  <span className="tabla-cuenta">{c.nombre}</span>
+                  <span className="tabla-banco">{c.banco}</span>
+                </div>
+              </div>
+              <div className="tarjeta-detalle">
+                {limite > 0 && (
+                  <>
+                    <div className="tarjeta-barra-track">
+                      <div className="tarjeta-barra-fill" style={{ width:`${pct}%`, background: barColor }} />
+                    </div>
+                    <span className="tarjeta-pct">{Math.round(pct)}% usado</span>
+                  </>
+                )}
+                <span className="tabla-saldo rojo">{c.moneda} {fmt(usado, 2)}</span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
 
 export default function Dashboard() {
-  const fetchCuentas             = useBancoStore(s => s.fetchCuentas)
-  const fetchTodasTransacciones  = useBancoStore(s => s.fetchTodasTransacciones)
-  const getDashboardData         = useBancoStore(s => s.getDashboardData)
-  const cargandoDashboard        = useBancoStore(s => s.cargandoDashboard)
-  const cuentas                  = useBancoStore(s => s.cuentas)
-  const todasTransacciones       = useBancoStore(s => s.todasTransacciones)
+  const fetchCuentas            = useBancoStore(s => s.fetchCuentas)
+  const fetchTodasTransacciones = useBancoStore(s => s.fetchTodasTransacciones)
+  const getDashboardData        = useBancoStore(s => s.getDashboardData)
+  const cargandoDashboard       = useBancoStore(s => s.cargandoDashboard)
+  const cuentas                 = useBancoStore(s => s.cuentas)
 
   useEffect(() => {
     fetchCuentas()
@@ -24,15 +110,15 @@ export default function Dashboard() {
   if (cargandoDashboard || cuentas.length === 0) {
     return (
       <div className="dash-loading">
-        <div className="skeleton" style={{ height: 90 }} />
-        <div className="skeleton" style={{ height: 90 }} />
-        <div className="skeleton" style={{ height: 90 }} />
+        {[90,90,160,120].map((h,i) => (
+          <div key={i} className="skeleton" style={{ height: h }} />
+        ))}
       </div>
     )
   }
 
   const {
-    bancos, tarjetas, prestados, saldosPor,
+    bancos, tarjetas, prestados, efectivo, saldosPor,
     totalRD, totalUSD,
     totalIngresos, totalGastos, netMovimientos,
     cuadre,
@@ -54,8 +140,10 @@ export default function Dashboard() {
           <span className="metrica-valor">US$ {fmt(totalUSD, 2)}</span>
         </div>
         <div className="metrica-card">
-          <span className="metrica-label">Ingresos netos</span>
-          <span className="metrica-valor verde">RD$ {fmt(netMovimientos)}</span>
+          <span className="metrica-label">Balance neto</span>
+          <span className="metrica-valor" style={{ color: netMovimientos >= 0 ? 'var(--green-text)' : 'var(--red-text)' }}>
+            {netMovimientos >= 0 ? '+' : ''}RD$ {fmt(netMovimientos)}
+          </span>
         </div>
         <div className={`metrica-card cuadre ${cuadreCero ? 'ok' : 'alerta'}`}>
           <span className="metrica-label">Cuadre</span>
@@ -69,111 +157,32 @@ export default function Dashboard() {
       </div>
 
       {/* ── Cuentas de banco ── */}
-      {bancos.length > 0 && (
-        <section className="dash-seccion">
-          <div className="seccion-header">
-            <span className="seccion-titulo">🏦 Cuentas de banco</span>
-            <span className="seccion-total">RD$ {fmt(bancos.filter(c => c.moneda !== 'USD').reduce((a,c) => a + saldosPor[c.id], 0))}</span>
-          </div>
-          <div className="cuentas-tabla">
-            {bancos.map(c => {
-              const saldo = saldosPor[c.id]
-              const pos   = saldo >= 0
-              return (
-                <div key={c.id} className="tabla-fila">
-                  <div className="tabla-nombre">
-                    <div className="tabla-dot" style={{ background: c.color ? c.color + '22' : '#EEEDFE', color: c.color || '#534AB7' }}>
-                      🏦
-                    </div>
-                    <div>
-                      <span className="tabla-cuenta">{c.nombre}</span>
-                      <span className="tabla-banco">{c.banco}</span>
-                    </div>
-                  </div>
-                  <span className={`tabla-saldo ${pos ? 'verde' : 'rojo'}`}>
-                    {c.moneda} {fmt(saldo, 2)}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-        </section>
-      )}
+      <SeccionCuentas
+        titulo="Cuentas de banco"
+        icono="🏦"
+        cuentas={bancos}
+        saldosPor={saldosPor}
+      />
+
+      {/* ── Efectivo ── */}
+      <SeccionCuentas
+        titulo="Efectivo"
+        icono="💵"
+        cuentas={efectivo}
+        saldosPor={saldosPor}
+        totalColor="var(--amber-text)"
+      />
 
       {/* ── Tarjetas de crédito ── */}
-      {tarjetas.length > 0 && (
-        <section className="dash-seccion">
-          <div className="seccion-header">
-            <span className="seccion-titulo">💳 Tarjetas de crédito</span>
-            <span className="seccion-total rojo">
-              RD$ {fmt(tarjetas.reduce((a,c) => a + Math.abs(saldosPor[c.id]), 0))} adeudado
-            </span>
-          </div>
-          <div className="cuentas-tabla">
-            {tarjetas.map(c => {
-              const saldo  = saldosPor[c.id]
-              const limite = Number(c.limite || 0)
-              const usado  = Math.abs(Math.min(saldo, 0))
-              const pct    = limite > 0 ? Math.min((usado / limite) * 100, 100) : 0
-              return (
-                <div key={c.id} className="tabla-fila tarjeta-fila">
-                  <div className="tabla-nombre">
-                    <div className="tabla-dot" style={{ background: '#FCEBEB', color: '#A32D2D' }}>💳</div>
-                    <div>
-                      <span className="tabla-cuenta">{c.nombre}</span>
-                      <span className="tabla-banco">{c.banco}</span>
-                    </div>
-                  </div>
-                  <div className="tarjeta-detalle">
-                    {limite > 0 && (
-                      <>
-                        <div className="tarjeta-barra-track">
-                          <div className="tarjeta-barra-fill" style={{
-                            width: `${pct}%`,
-                            background: pct > 80 ? 'var(--red-bar)' : pct > 50 ? '#EF9F27' : 'var(--green-bar)'
-                          }} />
-                        </div>
-                        <span className="tarjeta-pct">{Math.round(pct)}% usado</span>
-                      </>
-                    )}
-                    <span className="tabla-saldo rojo">{c.moneda} {fmt(Math.abs(saldo), 2)}</span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </section>
-      )}
+      <SeccionTarjetas tarjetas={tarjetas} saldosPor={saldosPor} />
 
       {/* ── Prestado / Inversiones ── */}
-      {prestados.length > 0 && (
-        <section className="dash-seccion">
-          <div className="seccion-header">
-            <span className="seccion-titulo">📦 Prestado / Inversiones</span>
-            <span className="seccion-total">RD$ {fmt(prestados.reduce((a,c) => a + saldosPor[c.id], 0))}</span>
-          </div>
-          <div className="cuentas-tabla">
-            {prestados.map(c => {
-              const saldo = saldosPor[c.id]
-              const pos   = saldo >= 0
-              return (
-                <div key={c.id} className="tabla-fila">
-                  <div className="tabla-nombre">
-                    <div className="tabla-dot" style={{ background: '#FAEEDA', color: '#854F0B' }}>📦</div>
-                    <div>
-                      <span className="tabla-cuenta">{c.nombre}</span>
-                      <span className="tabla-banco">{c.banco}</span>
-                    </div>
-                  </div>
-                  <span className={`tabla-saldo ${pos ? 'verde' : 'rojo'}`}>
-                    {c.moneda} {fmt(saldo, 2)}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-        </section>
-      )}
+      <SeccionCuentas
+        titulo="Prestado / Inversiones"
+        icono="📦"
+        cuentas={prestados}
+        saldosPor={saldosPor}
+      />
 
       {/* ── Ingresos vs Gastos ── */}
       <section className="dash-seccion">
@@ -191,14 +200,8 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="barra-doble">
-          <div
-            className="barra-ing"
-            style={{ width: `${(totalIngresos / (totalIngresos + totalGastos || 1)) * 100}%` }}
-          />
-          <div
-            className="barra-gas"
-            style={{ width: `${(totalGastos / (totalIngresos + totalGastos || 1)) * 100}%` }}
-          />
+          <div className="barra-ing" style={{ width:`${(totalIngresos/(totalIngresos+totalGastos||1))*100}%` }} />
+          <div className="barra-gas" style={{ width:`${(totalGastos/(totalIngresos+totalGastos||1))*100}%` }} />
         </div>
       </section>
 

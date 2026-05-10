@@ -28,7 +28,6 @@ export const useBancoStore = create((set, get) => ({
     if (!error) set({ transacciones: data })
   },
 
-  // Fetch ALL transactions from all accounts (for the dashboard)
   fetchTodasTransacciones: async () => {
     set({ cargandoDashboard: true })
     const { data, error } = await supabase
@@ -46,63 +45,65 @@ export const useBancoStore = create((set, get) => ({
       .single()
     if (!error) {
       set((state) => ({
-        transacciones: [data, ...state.transacciones],
+        transacciones: state.transacciones[0]?.cuenta_id === nueva.cuenta_id
+          ? [data, ...state.transacciones]
+          : state.transacciones,
         todasTransacciones: [data, ...state.todasTransacciones],
       }))
     }
   },
 
-  // Calculate balance for a specific account using the per-account transactions
   calcularSaldo: (cuenta) => {
-    const transacciones = get().transacciones
-    const ingresos = transacciones
-      .filter(t => t.tipo === 'ingreso')
-      .reduce((acc, t) => acc + Number(t.monto), 0)
-    const gastos = transacciones
-      .filter(t => t.tipo === 'gasto')
-      .reduce((acc, t) => acc + Number(t.monto), 0)
-    return Number(cuenta.saldo_inicial) + ingresos - gastos
-  },
-
-  // Calculate balance for any account using ALL transactions (used by dashboard)
-  calcularSaldoCuenta: (cuenta) => {
-    const todas = get().todasTransacciones
-    const txs = todas.filter(t => t.cuenta_id === cuenta.id)
+    const txs      = get().transacciones
     const ingresos = txs.filter(t => t.tipo === 'ingreso').reduce((a, t) => a + Number(t.monto), 0)
-    const gastos   = txs.filter(t => t.tipo === 'gasto').reduce((a, t)   => a + Number(t.monto), 0)
+    const gastos   = txs.filter(t => t.tipo === 'gasto').reduce((a, t) => a + Number(t.monto), 0)
     return Number(cuenta.saldo_inicial) + ingresos - gastos
   },
 
-  // Dashboard aggregates
+  calcularSaldoCuenta: (cuenta) => {
+    const txs      = get().todasTransacciones.filter(t => t.cuenta_id === cuenta.id)
+    const ingresos = txs.filter(t => t.tipo === 'ingreso').reduce((a, t) => a + Number(t.monto), 0)
+    const gastos   = txs.filter(t => t.tipo === 'gasto').reduce((a, t) => a + Number(t.monto), 0)
+    return Number(cuenta.saldo_inicial) + ingresos - gastos
+  },
+
   getDashboardData: () => {
     const { cuentas, todasTransacciones, calcularSaldoCuenta } = get()
 
-    // Group accounts by tipo (field we'll add to Supabase, fallback to 'banco')
-    const bancos    = cuentas.filter(c => !c.tipo || c.tipo === 'banco')
-    const tarjetas  = cuentas.filter(c => c.tipo === 'tarjeta')
-    const prestados = cuentas.filter(c => c.tipo === 'prestado')
+    // Clasificar cuentas por tipo
+    // tipo: 'banco' | 'tarjeta' | 'prestado' | 'efectivo'
+    // Si no tiene tipo, se infiere por nombre (efectivo) o se pone banco
+    const clasif = (c) => {
+      if (c.tipo) return c.tipo
+      const n = c.nombre.toLowerCase()
+      if (n.includes('efectivo') || n.includes('cash')) return 'efectivo'
+      return 'banco'
+    }
 
-    // Per-account saldo
+    const bancos    = cuentas.filter(c => clasif(c) === 'banco')
+    const tarjetas  = cuentas.filter(c => clasif(c) === 'tarjeta')
+    const prestados = cuentas.filter(c => clasif(c) === 'prestado')
+    const efectivo  = cuentas.filter(c => clasif(c) === 'efectivo')
+
     const saldosPor = {}
     cuentas.forEach(c => { saldosPor[c.id] = calcularSaldoCuenta(c) })
 
-    // Totals by currency for banco accounts
-    const totalRD  = bancos.filter(c => c.moneda !== 'USD').reduce((a, c) => a + saldosPor[c.id], 0)
-    const totalUSD = bancos.filter(c => c.moneda === 'USD').reduce((a, c) => a + saldosPor[c.id], 0)
+    // Solo cuentas banco + efectivo para el total disponible
+    const disponibles = [...bancos, ...efectivo]
+    const totalRD  = disponibles.filter(c => c.moneda !== 'USD').reduce((a, c) => a + saldosPor[c.id], 0)
+    const totalUSD = disponibles.filter(c => c.moneda === 'USD').reduce((a, c) => a + saldosPor[c.id], 0)
 
-    // Net ingresos - gastos (all accounts)
-    const totalIngresos = todasTransacciones.filter(t => t.tipo === 'ingreso').reduce((a, t) => a + Number(t.monto), 0)
-    const totalGastos   = todasTransacciones.filter(t => t.tipo === 'gasto').reduce((a, t)   => a + Number(t.monto), 0)
+    const totalIngresos  = todasTransacciones.filter(t => t.tipo === 'ingreso').reduce((a, t) => a + Number(t.monto), 0)
+    const totalGastos    = todasTransacciones.filter(t => t.tipo === 'gasto').reduce((a, t) => a + Number(t.monto), 0)
     const netMovimientos = totalIngresos - totalGastos
 
-    // Cuadre: change in balance vs registered movements (should be 0 if everything is recorded)
     const cambioBalance = cuentas
       .filter(c => c.moneda !== 'USD')
       .reduce((a, c) => a + (saldosPor[c.id] - Number(c.saldo_inicial)), 0)
     const cuadre = cambioBalance - netMovimientos
 
     return {
-      bancos, tarjetas, prestados, saldosPor,
+      bancos, tarjetas, prestados, efectivo, saldosPor,
       totalRD, totalUSD,
       totalIngresos, totalGastos, netMovimientos,
       cuadre,
