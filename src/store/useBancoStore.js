@@ -59,6 +59,42 @@ export const useBancoStore = create((set, get) => ({
     }
   },
 
+  agregarCuenta: async (nueva) => {
+    const { data, error } = await supabase
+      .from('cuentas')
+      .insert([nueva])
+      .select()
+      .single()
+    if (!error) set(state => ({ cuentas: [...state.cuentas, data] }))
+    return { error }
+  },
+
+  editarCuenta: async (id, campos) => {
+    const { error } = await supabase
+      .from('cuentas')
+      .update(campos)
+      .eq('id', id)
+    if (!error) {
+      set(state => ({
+        cuentas: state.cuentas.map(c => c.id === id ? { ...c, ...campos } : c),
+      }))
+    }
+    return { error }
+  },
+
+  eliminarCuenta: async (id) => {
+    await supabase.from('transacciones').delete().eq('cuenta_id', id)
+    const { error } = await supabase.from('cuentas').delete().eq('id', id)
+    if (!error) {
+      set(state => ({
+        cuentas:            state.cuentas.filter(c => c.id !== id),
+        transacciones:      state.transacciones.filter(t => t.cuenta_id !== id),
+        todasTransacciones: state.todasTransacciones.filter(t => t.cuenta_id !== id),
+      }))
+    }
+    return { error }
+  },
+
   calcularSaldo: (cuenta) => {
     const txs      = get().transacciones
     const ingresos = txs.filter(t => t.tipo === 'ingreso').reduce((a, t) => a + Number(t.monto), 0)

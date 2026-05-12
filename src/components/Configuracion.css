@@ -1,0 +1,345 @@
+/* ── Overlay ── */
+.cfg-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(2px);
+  z-index: 200;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ── Panel drawer ── */
+.cfg-panel {
+  width: 420px;
+  max-width: 100vw;
+  height: 100%;
+  background: var(--surface);
+  border-left: 0.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideIn 0.22s ease;
+}
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* ── Header ── */
+.cfg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+.cfg-titulo {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.cfg-close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: var(--bg);
+  border-radius: 50%;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.cfg-close:hover { background: var(--border); }
+
+/* ── Nav tabs ── */
+.cfg-nav {
+  display: flex;
+  gap: 4px;
+  padding: 10px 12px;
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+.cfg-nav-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: 0.5px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cfg-nav-btn:hover { background: var(--bg); color: var(--text-primary); }
+.cfg-nav-btn.activo {
+  background: var(--purple-light);
+  color: var(--purple-text);
+  border-color: rgba(127,119,221,0.2);
+}
+.cfg-nav-ico { font-size: 14px; }
+
+/* ── Scrollable body ── */
+.cfg-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Account item ── */
+.cfg-item {
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.cfg-item.editando {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(127,119,221,0.12);
+}
+.cfg-item-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+}
+.cfg-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.cfg-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.cfg-item-nombre {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cfg-item-banco {
+  font-size: 11px;
+  color: var(--text-hint);
+}
+.cfg-item-btns {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.cfg-icon-btn {
+  width: 30px;
+  height: 30px;
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.cfg-icon-btn.edit  { color: var(--purple-dark); }
+.cfg-icon-btn.edit:hover  { background: var(--purple-light); border-color: var(--purple); }
+.cfg-icon-btn.delete { color: var(--red-text); }
+.cfg-icon-btn.delete:hover { background: var(--red-bg); border-color: var(--red-text); }
+
+/* ── Edit form inside item ── */
+.cfg-edit-form {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cfg-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.cfg-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+@media (max-width: 480px) {
+  .cfg-row-2, .cfg-row-3 { grid-template-columns: 1fr; }
+}
+.cfg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cfg-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-hint);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.cfg-color-field { flex-direction: column; }
+.cfg-color-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cfg-color-input {
+  width: 40px !important;
+  height: 32px;
+  padding: 2px 3px !important;
+  border-radius: 8px !important;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.cfg-color-hex {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+.cfg-edit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+/* ── Buttons ── */
+.cfg-btn-save {
+  background: var(--purple);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.cfg-btn-save:hover    { background: var(--purple-dark); }
+.cfg-btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.cfg-btn-cancel {
+  background: var(--bg);
+  color: var(--text-muted);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cfg-btn-cancel:hover { background: var(--border); }
+
+.cfg-btn-delete {
+  background: var(--red-text);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.cfg-btn-delete:hover    { opacity: 0.88; }
+.cfg-btn-delete:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Error ── */
+.cfg-error {
+  font-size: 12px;
+  color: var(--red-text);
+  background: var(--red-bg);
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+/* ── Empty state ── */
+.cfg-empty {
+  font-size: 13px;
+  color: var(--text-hint);
+  text-align: center;
+  padding: 24px 0;
+}
+
+/* ── Export card ── */
+.cfg-export-card {
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+.cfg-export-ico    { font-size: 32px; }
+.cfg-export-titulo { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.cfg-export-desc   { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.cfg-export-stat   {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-hint);
+  font-weight: 500;
+}
+
+/* ── Confirm modal (inside panel) ── */
+.cfg-confirm-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 10;
+  animation: fadeIn 0.15s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.cfg-confirm-box {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  max-width: 320px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.cfg-confirm-ico    { font-size: 28px; }
+.cfg-confirm-titulo { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+.cfg-confirm-nombre { font-size: 14px; color: var(--purple); font-weight: 500; }
+.cfg-confirm-desc   { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 4px; }
+.cfg-confirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
