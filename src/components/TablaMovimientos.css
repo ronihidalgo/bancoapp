@@ -14,6 +14,67 @@
 }
 .mov-fila:last-child { border-bottom: none; }
 
+/* Botones de acción (editar / eliminar) */
+.mov-acciones {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.mov-btn-accion {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.mov-btn-accion.editar:hover  { background: var(--purple-light); color: var(--purple-text); border-color: var(--purple); }
+.mov-btn-accion.eliminar:hover { background: var(--red-bg); color: var(--red-text); border-color: var(--red-text); }
+
+/* Fila de confirmación de eliminación */
+.mov-fila.confirmando {
+  background: var(--red-bg);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  border-bottom: none;
+  margin-bottom: 1px;
+}
+.mov-confirm-txt {
+  flex: 1;
+  font-size: 13px;
+  color: var(--red-text);
+  font-weight: 500;
+}
+.mov-confirm-btns { display: flex; gap: 6px; flex-shrink: 0; }
+
+.mov-btn-cancel {
+  padding: 4px 10px;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+.mov-btn-delete {
+  padding: 4px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--red-text);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.mov-btn-delete:disabled, .mov-btn-cancel:disabled { opacity: 0.6; cursor: not-allowed; }
+
 .mov-dot {
   width: 32px;
   height: 32px;

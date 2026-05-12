@@ -130,6 +130,23 @@
 .btn-modal:hover  { opacity: 0.9; }
 .btn-modal:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* Toggle ingreso / gasto (usado en edición) */
+.tipo-toggle { display: flex; gap: 8px; }
+.tipo-btn {
+  flex: 1;
+  padding: 8px;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tipo-btn.activo-verde { background: var(--green-bg); border-color: var(--green-text); color: var(--green-text); }
+.tipo-btn.activo-rojo  { background: var(--red-bg);   border-color: var(--red-text);   color: var(--red-text); }
+
 /* OK state */
 .modal-ok {
   display: flex;

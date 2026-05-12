@@ -59,6 +59,28 @@ export const useBancoStore = create((set, get) => ({
     }
   },
 
+  editarTransaccion: async (id, campos) => {
+    const { error } = await supabase.from('transacciones').update(campos).eq('id', id)
+    if (!error) {
+      set(state => ({
+        transacciones:      state.transacciones.map(t => t.id === id ? { ...t, ...campos } : t),
+        todasTransacciones: state.todasTransacciones.map(t => t.id === id ? { ...t, ...campos } : t),
+      }))
+    }
+    return { error }
+  },
+
+  eliminarTransaccion: async (id) => {
+    const { error } = await supabase.from('transacciones').delete().eq('id', id)
+    if (!error) {
+      set(state => ({
+        transacciones:      state.transacciones.filter(t => t.id !== id),
+        todasTransacciones: state.todasTransacciones.filter(t => t.id !== id),
+      }))
+    }
+    return { error }
+  },
+
   agregarCuenta: async (nueva) => {
     const { data, error } = await supabase
       .from('cuentas')
