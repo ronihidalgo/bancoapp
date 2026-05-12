@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './TasaCambio.css'
 
-const INTERVALO_MS = 10 * 60 * 1000 // refresca cada 10 min
+const INTERVALO_MS = 10 * 60 * 1000
 
 export default function TasaCambio() {
   const [datos,    setDatos]    = useState(null)
@@ -29,34 +29,35 @@ export default function TasaCambio() {
     return () => clearInterval(id)
   }, [])
 
-  if (cargando) return <div className="tasa-widget tasa-skeleton" />
-  if (error)    return null
+  if (error) return null
 
-  const esBHD   = datos.fuente === 'BHD'
-  const fmt     = (n) => Number(n).toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const fmt = (n) => Number(n).toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
   return (
-    <div className="tasa-widget" title={`Actualizado: ${new Date(datos.ts).toLocaleTimeString('es-DO')}`}>
-      <span className="tasa-flag">🇺🇸</span>
-      <div className="tasa-rates">
-        <span className="tasa-label">USD</span>
-        <span className="tasa-par">
-          <span className="tasa-tag compra">C</span>
-          <span className="tasa-val">{fmt(datos.compra)}</span>
-        </span>
-        <span className="tasa-sep">·</span>
-        <span className="tasa-par">
-          <span className="tasa-tag venta">V</span>
-          <span className="tasa-val">{fmt(datos.venta)}</span>
-        </span>
+    <>
+      <div
+        className={`btn-tasa compra ${cargando ? 'cargando' : ''}`}
+        title={datos ? `Actualizado: ${new Date(datos.ts).toLocaleTimeString('es-DO')}` : ''}
+        onClick={fetchTasa}
+      >
+        <span className="btn-tasa-icono">↓</span>
+        <div className="btn-tasa-info">
+          <span className="btn-tasa-label">Compra USD</span>
+          <span className="btn-tasa-valor">{cargando ? '···' : `RD$ ${fmt(datos.compra)}`}</span>
+        </div>
       </div>
-      <span className="tasa-fuente">{esBHD ? 'BHD' : '~mercado'}</span>
-      <button className="tasa-refresh" onClick={fetchTasa} title="Actualizar tasa" aria-label="Actualizar">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="23 4 23 10 17 10"/>
-          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-        </svg>
-      </button>
-    </div>
+
+      <div
+        className={`btn-tasa venta ${cargando ? 'cargando' : ''}`}
+        title={datos ? `Actualizado: ${new Date(datos.ts).toLocaleTimeString('es-DO')}` : ''}
+        onClick={fetchTasa}
+      >
+        <span className="btn-tasa-icono">↑</span>
+        <div className="btn-tasa-info">
+          <span className="btn-tasa-label">Venta USD</span>
+          <span className="btn-tasa-valor">{cargando ? '···' : `RD$ ${fmt(datos.venta)}`}</span>
+        </div>
+      </div>
+    </>
   )
 }
