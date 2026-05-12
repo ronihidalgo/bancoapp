@@ -7,6 +7,7 @@ import ResumenMes        from './components/ResumenMes'
 import Dashboard         from './components/Dashboard'
 import ModalTransaccion  from './components/ModalTransaccion'
 import Configuracion     from './components/Configuracion'
+import TasaCambio        from './components/TasaCambio'
 import Setup             from './pages/Setup'
 import './App.css'
 
@@ -51,7 +52,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* Botones de acción rápida */}
+      {/* Botones de acción rápida + tasa de cambio */}
       <div className="acciones-rapidas">
         <button className="btn-accion ingreso" onClick={() => setModal('ingreso')}>
           <span className="btn-accion-icono">↑</span>
@@ -61,6 +62,7 @@ export default function App() {
           <span className="btn-accion-icono">↓</span>
           Egreso
         </button>
+        <TasaCambio />
       </div>
 
       {/* Dashboard */}

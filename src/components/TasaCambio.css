@@ -1,0 +1,90 @@
+.tasa-widget {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 7px 12px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.tasa-skeleton {
+  width: 220px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, var(--border) 25%, var(--bg) 50%, var(--border) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.tasa-flag { font-size: 15px; line-height: 1; }
+
+.tasa-rates {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tasa-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-hint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 2px;
+}
+
+.tasa-par {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.tasa-tag {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.tasa-tag.compra { background: var(--green-bg); color: var(--green-text); }
+.tasa-tag.venta  { background: var(--red-bg);   color: var(--red-text); }
+
+.tasa-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.tasa-sep { color: var(--border-hover); font-size: 11px; }
+
+.tasa-fuente {
+  font-size: 10px;
+  color: var(--text-hint);
+  font-weight: 500;
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.tasa-refresh {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-hint);
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.tasa-refresh:hover { color: var(--purple); }
