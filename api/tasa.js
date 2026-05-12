@@ -21,17 +21,33 @@ export default async function handler(req, res) {
 
     const html = await resp.text()
 
-    // Extraer precios en formato $XX.XX dentro del rango válido para DOP/USD (40–120)
-    const precios = [...html.matchAll(/\$\s*(\d{2,3}\.\d{2})/g)]
+    // Intentar parsear buscando "Compra" y "Venta" como contexto
+    const compraM = html.match(/[Cc]ompra[\s\S]{0,80}?(\d{2,3}\.\d{2})/)
+    const ventaM  = html.match(/[Vv]enta[\s\S]{0,80}?(\d{2,3}\.\d{2})/)
+
+    if (compraM && ventaM) {
+      const compra = parseFloat(compraM[1])
+      const venta  = parseFloat(ventaM[1])
+      if (compra >= 40 && compra <= 120 && venta >= 40 && venta <= 120) {
+        return res.status(200).json({ compra, venta, fuente: 'BHD', ts: new Date().toISOString() })
+      }
+    }
+
+    // Fallback: extraer todos los números en rango válido para DOP/USD, deduplicar y ordenar.
+    // Compra (banco compra al cliente) < Venta (banco vende al cliente), siempre.
+    const todos = [...html.matchAll(/(\d{2,3}\.\d{2})/g)]
       .map(m => parseFloat(m[1]))
-      .filter(v => v >= 40 && v <= 120)
+      .filter(v => v >= 50 && v <= 100)
 
-    if (precios.length < 2) throw new Error('parse_failed')
+    const unicos = [...new Set(todos.map(n => n.toFixed(2)))]
+      .map(Number)
+      .sort((a, b) => a - b)
 
-    // infodolar muestra compra primero, luego venta
+    if (unicos.length < 2) throw new Error('parse_failed')
+
     return res.status(200).json({
-      compra: precios[0],
-      venta:  precios[1],
+      compra: unicos[0],
+      venta:  unicos[unicos.length - 1],
       fuente: 'BHD',
       ts:     new Date().toISOString(),
     })
