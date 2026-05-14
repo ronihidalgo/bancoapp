@@ -82,19 +82,23 @@ export const useBancoStore = create((set, get) => ({
   },
 
   agregarCuenta: async (nueva) => {
+    // eslint-disable-next-line no-unused-vars
+    const { limite, ...payload } = nueva
     const { data, error } = await supabase
       .from('cuentas')
-      .insert([nueva])
+      .insert([payload])
       .select()
       .single()
-    if (!error) set(state => ({ cuentas: [...state.cuentas, data] }))
+    if (!error) set(state => ({ cuentas: [...state.cuentas, { ...data, limite: nueva.limite ?? 0 }] }))
     return { error }
   },
 
   editarCuenta: async (id, campos) => {
+    // eslint-disable-next-line no-unused-vars
+    const { limite, ...payload } = campos
     const { error } = await supabase
       .from('cuentas')
-      .update(campos)
+      .update(payload)
       .eq('id', id)
     if (!error) {
       set(state => ({
