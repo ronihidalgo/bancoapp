@@ -2,33 +2,27 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600')
 
-  // 1. Scraper directo BHD (fuente oficial)
+  // 1. API interna del backend de BHD (Strapi) — fuente oficial
   try {
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 8000)
-    const resp = await fetch('https://www.bhd.com.do/homepage-personal/remesas', {
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0',
-        'Accept': 'text/html,application/xhtml+xml',
-        'Accept-Language': 'es-DO,es;q=0.9',
-      },
-    })
-    clearTimeout(timeout)
-    const html = await resp.text()
+    const resp = await fetch(
+      'https://backend.bhd.com.do/api/t-4-5s/1?populate=deep',
+      { headers: { 'Accept': 'application/json' } }
+    )
+    const json = await resp.json()
+    const rowdata = json?.data?.attributes?.table_body?.[0]?.rowdata
+    if (!rowdata) throw new Error('no_rowdata')
 
-    // La tabla dice: Dólar (USD)  57.10 DOP  60.80 DOP
-    const m = html.match(/D[oó]lar\s*\(USD\)[\s\S]{0,60}?(\d{2,3}\.\d{2})\s*DOP[\s\S]{0,30}?(\d{2,3}\.\d{2})\s*DOP/)
-    if (m) {
-      const compra = parseFloat(m[1])
-      const venta  = parseFloat(m[2])
-      if (compra >= 40 && compra <= 120 && venta > compra) {
-        return res.status(200).json({ compra, venta, fuente: 'BHD', ts: new Date().toISOString() })
-      }
+    // rowdata[2] = compra, rowdata[3] = venta  (ej: "57.10 DOP")
+    const compra = parseFloat(rowdata[2]?.headname)
+    const venta  = parseFloat(rowdata[3]?.headname)
+
+    if (compra >= 40 && compra <= 120 && venta > compra) {
+      return res.status(200).json({ compra, venta, fuente: 'BHD', ts: new Date().toISOString() })
     }
+    throw new Error('valores_invalidos')
   } catch { /* continuar */ }
 
-  // 2. API de mercado (actualiza cada hora, sin clave)
+  // 2. API de mercado (fallback)
   try {
     const resp = await fetch('https://open.er-api.com/v6/latest/USD')
     const data = await resp.json()
