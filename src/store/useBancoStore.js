@@ -177,7 +177,8 @@ export const useBancoStore = create((set, get) => ({
       .filter(c => c.moneda === 'USD')
       .reduce((a, c) => a + Math.max(0, Number(c.saldo_inicial) - saldosPor[c.id]), 0)
 
-    const totalRD = totalRD_base - adeudadoDOP - (tasaVenta > 0 ? adeudadoUSD * tasaVenta : 0)
+    const totalRD    = totalRD_base - adeudadoDOP - (tasaVenta > 0 ? adeudadoUSD * tasaVenta : 0)
+    const disponible = totalRD_base
 
     const totalIngresos  = todasTransacciones.filter(t => t.tipo === 'ingreso').reduce((a, t) => a + Number(t.monto), 0)
     const totalGastos    = todasTransacciones.filter(t => t.tipo === 'gasto').reduce((a, t) => a + Number(t.monto), 0)
@@ -190,7 +191,7 @@ export const useBancoStore = create((set, get) => ({
 
     return {
       bancos, tarjetas, prestados, efectivo, saldosPor,
-      totalRD, totalUSD,
+      totalRD, totalUSD, disponible,
       totalIngresos, totalGastos, netMovimientos,
       cuadre,
     }
