@@ -167,15 +167,18 @@ export const useBancoStore = create((set, get) => ({
     const totalRD_base = disponibles.filter(c => c.moneda !== 'USD').reduce((a, c) => a + saldosPor[c.id], 0)
     const totalUSD     = disponibles.filter(c => c.moneda === 'USD').reduce((a, c) => a + saldosPor[c.id], 0)
 
-    // Tarjetas USD: restar gasto neto convertido a DOP (gastos - ingresos desde saldo_inicial)
     const tasaVenta = get().tasaVenta || 0
-    const tarjetasUSDenDOP = tasaVenta > 0
-      ? tarjetas.filter(c => c.moneda === 'USD').reduce((a, c) => {
-          const gastoNeto = Math.max(0, Number(c.saldo_inicial) - saldosPor[c.id])
-          return a - gastoNeto * tasaVenta
-        }, 0)
-      : 0
-    const totalRD = totalRD_base + tarjetasUSDenDOP
+
+    const adeudadoDOP = tarjetas
+      .filter(c => c.moneda !== 'USD')
+      .reduce((a, c) => a + Math.max(0, Number(c.saldo_inicial) - saldosPor[c.id]), 0)
+
+    const adeudadoUSD = tarjetas
+      .filter(c => c.moneda === 'USD')
+      .reduce((a, c) => a + Math.max(0, Number(c.saldo_inicial) - saldosPor[c.id]), 0)
+
+    const totalRD = totalRD_base
+    const disponible = totalRD_base - adeudadoDOP - (tasaVenta > 0 ? adeudadoUSD * tasaVenta : 0)
 
     const totalIngresos  = todasTransacciones.filter(t => t.tipo === 'ingreso').reduce((a, t) => a + Number(t.monto), 0)
     const totalGastos    = todasTransacciones.filter(t => t.tipo === 'gasto').reduce((a, t) => a + Number(t.monto), 0)
@@ -188,7 +191,7 @@ export const useBancoStore = create((set, get) => ({
 
     return {
       bancos, tarjetas, prestados, efectivo, saldosPor,
-      totalRD, totalUSD,
+      totalRD, totalUSD, disponible,
       totalIngresos, totalGastos, netMovimientos,
       cuadre,
     }

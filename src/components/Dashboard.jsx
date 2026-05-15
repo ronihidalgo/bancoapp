@@ -126,7 +126,7 @@ export default function Dashboard() {
 
   const {
     bancos, tarjetas, prestados, efectivo, saldosPor,
-    totalRD, totalUSD,
+    totalRD, disponible,
     totalIngresos, totalGastos, netMovimientos,
     cuadre,
   } = getDashboardData()
@@ -143,8 +143,10 @@ export default function Dashboard() {
           <span className="metrica-valor">RD$ {fmt(totalRD)}</span>
         </div>
         <div className="metrica-card">
-          <span className="metrica-label">Total US$</span>
-          <span className="metrica-valor">US$ {fmt(totalUSD, 2)}</span>
+          <span className="metrica-label">Disponible</span>
+          <span className="metrica-valor" style={{ color: disponible >= 0 ? 'inherit' : 'var(--red-text)' }}>
+            RD$ {fmt(disponible)}
+          </span>
         </div>
         <div className="metrica-card">
           <span className="metrica-label">Ingresos − Gastos</span>
