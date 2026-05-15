@@ -59,6 +59,7 @@ export const useBancoStore = create((set, get) => ({
         }
       })
     }
+    return { error }
   },
 
   editarTransaccion: async (id, campos) => {

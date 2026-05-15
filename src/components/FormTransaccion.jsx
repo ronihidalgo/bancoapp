@@ -5,6 +5,7 @@ import './FormTransaccion.css'
 export default function FormTransaccion({ cuenta }) {
   const agregarTransaccion = useBancoStore(s => s.agregarTransaccion)
   const [enviando, setEnviando] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
   const [form, setForm] = useState({
     tipo: 'gasto', monto: '', descripcion: '', fecha: new Date().toISOString().split('T')[0]
   })
@@ -15,13 +16,15 @@ export default function FormTransaccion({ cuenta }) {
     e.preventDefault()
     if (!form.monto || parseFloat(form.monto) <= 0) return
     setEnviando(true)
-    await agregarTransaccion({
+    setErrorMsg('')
+    const { error } = await agregarTransaccion({
       ...form,
       monto: parseFloat(form.monto),
       cuenta_id: cuenta.id
     })
-    setForm({ tipo: form.tipo, monto: '', descripcion: '', fecha: new Date().toISOString().split('T')[0] })
     setEnviando(false)
+    if (error) { setErrorMsg(error.message); return }
+    setForm({ tipo: form.tipo, monto: '', descripcion: '', fecha: new Date().toISOString().split('T')[0] })
   }
 
   return (
@@ -64,6 +67,7 @@ export default function FormTransaccion({ cuenta }) {
         onChange={e => set('fecha', e.target.value)}
       />
 
+      {errorMsg && <p style={{ color: '#A32D2D', fontSize: 13, margin: '4px 0 0' }}>{errorMsg}</p>}
       <button type="submit" className="btn-primary" disabled={enviando}>
         {enviando ? 'Guardando...' : 'Registrar'}
       </button>
