@@ -144,7 +144,7 @@ export default function Dashboard() {
         <div className="metrica-card">
           <span className="metrica-label">Ingresos − Gastos</span>
           <span className="metrica-valor" style={{ color: netMovimientos >= 0 ? 'var(--green-text)' : 'var(--red-text)' }}>
-            {netMovimientos >= 0 ? '+' : ''}RD$ {fmt(netMovimientos)}
+            {netMovimientos >= 0 ? '+' : ''}RD$ {fmt(netMovimientos, 2)}
           </span>
         </div>
         <div className={`metrica-card cuadre ${cuadreCero ? 'ok' : 'alerta'}`}>
