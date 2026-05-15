@@ -49,22 +49,27 @@ function SeccionCuentas({ titulo, icono, cuentas, saldosPor, totalLabel, totalCo
 function SeccionTarjetas({ tarjetas, saldosPor }) {
   if (tarjetas.length === 0) return null
 
-  const total = tarjetas
-    .filter(c => c.moneda !== 'USD')
-    .reduce((a, c) => a + Math.abs(Math.min(saldosPor[c.id], 0)), 0)
+  // adeudado = gastos - ingresos desde el saldo inicial (independiente de saldo_inicial)
+  const adeudado = (c) => Math.max(0, Number(c.saldo_inicial) - saldosPor[c.id])
+
+  const totalDOP = tarjetas.filter(c => c.moneda !== 'USD').reduce((a, c) => a + adeudado(c), 0)
+  const totalUSD = tarjetas.filter(c => c.moneda === 'USD').reduce((a, c) => a + adeudado(c), 0)
 
   return (
     <section className="dash-seccion">
       <div className="seccion-header">
         <span className="seccion-titulo">💳 Tarjetas de crédito</span>
-        <span className="seccion-total rojo">RD$ {fmt(total)} adeudado</span>
+        <div style={{ display:'flex', gap:10 }}>
+          {totalDOP > 0 && <span className="seccion-total rojo">RD$ {fmt(totalDOP)} adeudado</span>}
+          {totalUSD > 0 && <span className="seccion-total rojo">US$ {fmt(totalUSD, 2)} adeudado</span>}
+          {totalDOP === 0 && totalUSD === 0 && <span className="seccion-total rojo">RD$ 0 adeudado</span>}
+        </div>
       </div>
       <div className="cuentas-tabla">
         {tarjetas.map(c => {
-          const saldo  = saldosPor[c.id]
-          const limite = Number(c.limite || 0)
-          const usado  = Math.abs(Math.min(saldo, 0))
-          const pct    = limite > 0 ? Math.min((usado / limite) * 100, 100) : 0
+          const usado    = adeudado(c)
+          const limite   = Number(c.limite || 0)
+          const pct      = limite > 0 ? Math.min((usado / limite) * 100, 100) : 0
           const barColor = pct > 80 ? 'var(--red-bar)' : pct > 50 ? '#EF9F27' : 'var(--green-bar)'
 
           return (

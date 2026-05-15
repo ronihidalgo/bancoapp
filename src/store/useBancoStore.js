@@ -167,10 +167,13 @@ export const useBancoStore = create((set, get) => ({
     const totalRD_base = disponibles.filter(c => c.moneda !== 'USD').reduce((a, c) => a + saldosPor[c.id], 0)
     const totalUSD     = disponibles.filter(c => c.moneda === 'USD').reduce((a, c) => a + saldosPor[c.id], 0)
 
-    // Tarjetas USD convertidas a DOP usando tasa de venta
+    // Tarjetas USD: restar gasto neto convertido a DOP (gastos - ingresos desde saldo_inicial)
     const tasaVenta = get().tasaVenta || 0
     const tarjetasUSDenDOP = tasaVenta > 0
-      ? tarjetas.filter(c => c.moneda === 'USD').reduce((a, c) => a + saldosPor[c.id] * tasaVenta, 0)
+      ? tarjetas.filter(c => c.moneda === 'USD').reduce((a, c) => {
+          const gastoNeto = Math.max(0, Number(c.saldo_inicial) - saldosPor[c.id])
+          return a - gastoNeto * tasaVenta
+        }, 0)
       : 0
     const totalRD = totalRD_base + tarjetasUSDenDOP
 
