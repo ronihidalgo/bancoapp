@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useBancoStore } from '../store/useBancoStore'
 import './TasaCambio.css'
 
 const INTERVALO_MS = 10 * 60 * 1000
@@ -7,6 +8,7 @@ export default function TasaCambio() {
   const [datos,    setDatos]    = useState(null)
   const [cargando, setCargando] = useState(true)
   const [error,    setError]    = useState(false)
+  const setTasaVenta = useBancoStore(s => s.setTasaVenta)
 
   const fetchTasa = async () => {
     try {
@@ -15,6 +17,7 @@ export default function TasaCambio() {
       const json = await resp.json()
       if (json.error) throw new Error()
       setDatos(json)
+      setTasaVenta(json.venta)
       setError(false)
     } catch {
       setError(true)

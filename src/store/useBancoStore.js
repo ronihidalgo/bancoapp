@@ -8,6 +8,8 @@ export const useBancoStore = create((set, get) => ({
   todasTransacciones: [],
   cargando: false,
   cargandoDashboard: false,
+  tasaVenta: 0,
+  setTasaVenta: (v) => set({ tasaVenta: v }),
 
   fetchCuentas: async () => {
     set({ cargando: true })
@@ -161,8 +163,15 @@ export const useBancoStore = create((set, get) => ({
 
     // Solo cuentas banco + efectivo para el total disponible
     const disponibles = [...bancos, ...efectivo]
-    const totalRD  = disponibles.filter(c => c.moneda !== 'USD').reduce((a, c) => a + saldosPor[c.id], 0)
-    const totalUSD = disponibles.filter(c => c.moneda === 'USD').reduce((a, c) => a + saldosPor[c.id], 0)
+    const totalRD_base = disponibles.filter(c => c.moneda !== 'USD').reduce((a, c) => a + saldosPor[c.id], 0)
+    const totalUSD     = disponibles.filter(c => c.moneda === 'USD').reduce((a, c) => a + saldosPor[c.id], 0)
+
+    // Tarjetas USD convertidas a DOP usando tasa de venta
+    const tasaVenta = get().tasaVenta || 0
+    const tarjetasUSDenDOP = tasaVenta > 0
+      ? tarjetas.filter(c => c.moneda === 'USD').reduce((a, c) => a + saldosPor[c.id] * tasaVenta, 0)
+      : 0
+    const totalRD = totalRD_base + tarjetasUSDenDOP
 
     const totalIngresos  = todasTransacciones.filter(t => t.tipo === 'ingreso').reduce((a, t) => a + Number(t.monto), 0)
     const totalGastos    = todasTransacciones.filter(t => t.tipo === 'gasto').reduce((a, t) => a + Number(t.monto), 0)
